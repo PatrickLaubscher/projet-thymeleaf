@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruity shop</title>
+</head>
+<body>
+
+    <h1>Welcome <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>!</h1>
+
+
+    <a sec:authorize="!isAuthenticated()" th:href="@{/register}">
+        Créer un compte
+    </a>
+    <a sec:authorize="!isAuthenticated()" th:href="@{/login}">
+        Login
+    </a>
+    <a sec:authorize="isAuthenticated()" th:href="@{/logout}">
+        Logout
+    </a>
+
+    
+</body>
+</html>

@@ -1,15 +1,15 @@
 package com.hb.cda.thymeleafproject.entity;
 
+import org.hibernate.annotations.UuidGenerator;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 @Entity
 public class Product {
 
     @Id
-    @GeneratedValue(strategy =GenerationType.UUID )
+    @UuidGenerator
     private String id;
     private String name;
     private Double price;
