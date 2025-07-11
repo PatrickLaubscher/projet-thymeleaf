@@ -1,14 +1,18 @@
 package com.hb.cda.thymeleafproject.service.impl;
 
 
+import java.util.HashMap;
+
+import org.springframework.stereotype.Service;
+
 import com.hb.cda.thymeleafproject.entity.Product;
 import com.hb.cda.thymeleafproject.service.Cart;
 import com.hb.cda.thymeleafproject.service.CartService;
 
+import jakarta.servlet.http.HttpSession;
 
 
-
-
+@Service
 public class CartServiceImpl implements CartService {
 
 
@@ -45,8 +49,11 @@ public class CartServiceImpl implements CartService {
     public double getTotalPrice(HttpSession session) {
 
         Cart cart = this.getCart(session);
-        
-
+        double sum = 0.0;
+        for(HashMap.Entry<Product, Integer> item : cart.getItems().entrySet() ) {
+            sum += item.getValue() * item.getKey().getPrice();
+        }
+        return sum;
 
     }
     
