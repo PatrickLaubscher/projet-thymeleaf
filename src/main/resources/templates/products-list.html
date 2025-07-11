@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruity shop</title>
+</head>
+<body>
+    <h1>Liste des articles</h1>
+
+    <ul>
+        <li th:each="product : ${products}">
+            <h2 th:text="${product.name}">
+                Name
+            </h2>
+            <p th:text="${product.description}">
+                Description
+            </p>
+            <p th:text="${product.price}">
+                Price<span>€</span>
+            </p>
+            <p th:text="${product.stock}">
+                Stock
+            </p>
+            <button>
+                Add to cart
+            </button>
+        </li>
+    </ul>
+
+    
+    <nav>        
+        <a th:href="@{/products(pageNb=${pageNb-1})}" th:if="${pageNb > 1}">Précédente page</a>
+        <a th:href="@{/products(pageNb=${pageNb+1})}">Prochaine page</a>
+    </nav>
+    
+    
+</body>
+</html>

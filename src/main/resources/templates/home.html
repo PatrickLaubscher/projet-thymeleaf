@@ -10,17 +10,22 @@
 
     <h1>Welcome <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>!</h1>
 
+    <div>
+        <a th:href="@{/products}">
+            Liste des articles
+        </a>
+    </div>
+
 
     <a sec:authorize="!isAuthenticated()" th:href="@{/register}">
         Créer un compte
     </a>
     <a sec:authorize="!isAuthenticated()" th:href="@{/login}">
-        Login
+        Se connecter
     </a>
-    <a sec:authorize="isAuthenticated()" th:href="@{/logout}">
-        Logout
-    </a>
-
+    <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+        <button type="submit">Se déconnecter</button>
+    </form>
     
 </body>
 </html>
