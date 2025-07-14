@@ -9,9 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +22,6 @@ import com.hb.cda.thymeleafproject.repository.UserRepository;
 import com.hb.cda.thymeleafproject.service.impl.CartServiceImpl;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 
 
 
@@ -62,11 +59,11 @@ public class ProductController {
     
 
     @PostMapping("/add-to-cart")
-    public String addProductInCart(@ModelAttribute @Valid AddToCartDTO dto, BindingResult bindingResult, HttpSession session) {
-        Product product = productRepository.findById(dto.getProductId()).orElseThrow(
+    public String addProductInCart(@RequestParam String productId, @RequestParam int quantity, HttpSession session) {
+        Product product = productRepository.findById(productId).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         if (product != null) {
-            cartService.addProductInCart(product, dto.getQuantity(), session);
+            cartService.addProductInCart(product, quantity, session);
         }
         
         return "redirect:/product";

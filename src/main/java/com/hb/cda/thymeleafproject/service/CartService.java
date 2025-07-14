@@ -12,7 +12,10 @@ public interface CartService {
     public Cart getCart(HttpSession session);
 
     // add product in cart
-    public void addProductInCart(Product product, int qty, HttpSession session); 
+    public void addProductInCart(Product product, int qty, HttpSession session);
+
+    // diminish quantities in cart
+    public void diminishQuantityInCart(Product product, int qty, HttpSession session);
 
     // remove product from cart
     public void removeProductFromCart(Product product, HttpSession session);

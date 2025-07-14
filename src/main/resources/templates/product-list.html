@@ -8,6 +8,10 @@
 <body>
     <h1>Liste des articles</h1>
 
+    <a th:href="@{/}">
+        Accueil
+    </a>
+    <br>
     <a th:href="@{/cart}">
         Voir mon panier
     </a>
@@ -26,11 +30,11 @@
             <p>
                 Stock disponible: <span th:text="${product.stock}">stock</span>
             </p>
-            <form th:action="@{/product/add-to-cart}" th:object="${addToCartDTO}" method="post">
+            <form th:action="@{/product/add-to-cart}" method="post">
 
                 <input type="hidden" name="productId" th:value="${product.id}">
 
-                <input type="number" name="quantity" placeholder="1" min="1"  th:attr="max=${product.stock}">
+                <input type="number" name="quantity" value="1" placeholder="1" min="1" th:attr="max=${product.stock}">
                 
                 <button type="submit">Ajouter au panier</button>
             </form>

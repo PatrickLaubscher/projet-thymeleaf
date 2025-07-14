@@ -6,8 +6,27 @@
     <title>Fruity shop</title>
 </head>
 <body>
-    <h1>Panier</h1>
+    <h1>
+        Votre panier <span sec:authorize="isAuthenticated()" sec:authentication="name"></span>
+    </h1>
 
+    <p sec:authorize="!isAuthenticated()">
+        Vous n'êtes pas connecté(e). <br>Pensez à le faire ou à créer un compte.
+        <br>
+        <a sec:authorize="!isAuthenticated()" th:href="@{/register}">
+        Créer un compte
+        </a>
+        <br>
+        <a sec:authorize="!isAuthenticated()" th:href="@{/login}">
+            Se connecter
+        </a>
+
+    </p>
+
+    <a th:href="@{/}">
+        Accueil
+    </a>
+    <br>
     <a th:href="@{/product}">
         Retourner à la liste des articles
     </a>
@@ -19,6 +38,7 @@
             <th>Quantité</th>
             <th>Prix Unitaire</th>
             <th>Ajouter des produits</th>
+            <th>Diminuer quantité</th>
             <th>Supprimer l'article</th>
         </tr>
         <tr th:each="entry : ${cart.items}">
@@ -34,9 +54,19 @@
 
                     <input type="hidden" name="productId" th:value="${entry.key.id}">
 
-                    <input type="number" name="quantity" placeholder="1" min="1"  th:attr="max=${entry.key.stock - entry.value}">
+                    <input type="number" name="quantity" placeholder="1" min="1" value="1"  th:attr="max=${entry.key.stock - entry.value}">
                     
                     <button type="submit">Ajouter au panier</button>
+                </form>
+            </td>
+            <td>
+                <form th:action="@{/cart/decrease-qty}" th:object="${addToCartDTO}" method="post">
+
+                    <input type="hidden" name="productId" th:value="${entry.key.id}">
+
+                    <input type="number" name="quantity" placeholder="1" min="1" value="1"  th:attr="max=${entry.key.stock - entry.value}">
+                    
+                    <button type="submit">Diminuer quantité</button>
                 </form>
             </td>
             <td>
@@ -58,6 +88,8 @@
     <form th:action="@{/cart/empty-cart}" method="post">
         <button type="submit">Vider le panier</button>
     </form>
+
+    Valider le panier
         
 </body>
 </html>

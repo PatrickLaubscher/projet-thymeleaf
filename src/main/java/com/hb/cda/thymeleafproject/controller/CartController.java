@@ -1,6 +1,8 @@
 package com.hb.cda.thymeleafproject.controller;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -37,10 +39,14 @@ public class CartController {
 
 
     @GetMapping("")
-    public String displayCartList(Model model, HttpSession session) {
+    public String displayCartList(Model model, HttpSession session, @AuthenticationPrincipal UserDetails userDetails) {
 
         Cart cart = cartService.getCart(session);
         Double totalPrice = cartService.getTotalPrice(session);
+
+        if(userDetails != null && userDetails.isEnabled()) {
+            model.addAttribute("username", userDetails.getUsername());
+        }
 
         model.addAttribute("cart", cart); 
         model.addAttribute("total", totalPrice); 
@@ -57,6 +63,17 @@ public class CartController {
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         if (product != null) {
             cartService.addProductInCart(product, dto.getQuantity(), session);
+        }
+        
+        return "redirect:/cart";
+    }
+
+    @PostMapping("/decrease-qty")
+    public String decreaseQtyInCart(@ModelAttribute @Valid AddToCartDTO dto, BindingResult bindingResult, HttpSession session) {
+        Product product = productRepository.findById(dto.getProductId()).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+        if (product != null) {
+            cartService.diminishQuantityInCart(product, dto.getQuantity(), session);
         }
         
         return "redirect:/cart";

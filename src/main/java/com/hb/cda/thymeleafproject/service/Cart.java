@@ -21,6 +21,18 @@ public class Cart {
         return items;
     }
 
+    public void decreaseProductQuantity(Product product, int quantity) {
+        if (items.containsKey(product)) {
+            int currentQty = items.get(product);
+            int newQty = currentQty - quantity;
+            if (newQty > 0) {
+                items.put(product, newQty);
+            } else {
+                items.remove(product);
+            }
+        }
+    }
+
     public int getTotalQuantity() {
         return items.values().stream().mapToInt(Integer::intValue).sum();
     }

@@ -38,6 +38,14 @@ public class CartServiceImpl implements CartService {
 
 
     @Override
+    public void diminishQuantityInCart(Product product, int qty, HttpSession session) {
+
+        Cart cart = this.getCart(session);
+        cart.decreaseProductQuantity(product, qty);
+    }
+
+
+    @Override
     public void removeProductFromCart(Product product, HttpSession session) {
 
         Cart cart = this.getCart(session);
