@@ -55,5 +55,9 @@
         Total net: <span th:text="${total}">total</span> €
     </p>
 
+    <form th:action="@{/cart/empty-cart}" method="post">
+        <button type="submit">Vider le panier</button>
+    </form>
+        
 </body>
 </html>

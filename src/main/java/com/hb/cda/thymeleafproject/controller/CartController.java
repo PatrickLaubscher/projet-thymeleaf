@@ -73,6 +73,15 @@ public class CartController {
         
         return "redirect:/cart";
     }
+
+
+    @PostMapping("/empty-cart")
+    public String emptyCart(HttpSession session) {
+
+        cartService.removeEntireCart(session);
+        
+        return "redirect:/cart";
+    }
     
 
 }
