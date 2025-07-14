@@ -19,7 +19,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Cart getCart(HttpSession session) {
 
-        Cart cart = (Cart) session.getAttribute("panier");;
+        Cart cart = (Cart) session.getAttribute("panier");
         if (cart == null) {
             cart = new Cart();
             session.setAttribute("panier", cart);
@@ -42,6 +42,13 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = this.getCart(session);
         cart.removeProduct(product);
+    }
+
+
+    @Override
+    public void removeEntireCart(HttpSession session) {
+
+        session.removeAttribute("panier");
     }
 
 

@@ -72,6 +72,21 @@ public class CartServiceImplTest {
 
 
     @Test
+    public void testRemoveEntireCart() {
+
+        Cart before = cartService.getCart(httpSession);
+        assertTrue(before.getItems().containsKey(product1));
+        assertEquals(3, before.getItems().get(product1));
+
+        cartService.removeEntireCart(httpSession);
+
+        Cart after = cartService.getCart(httpSession);
+        assertNotNull(after);
+        assertTrue(after.getItems().isEmpty());
+    }
+
+
+    @Test
     public void testCalculateTotalPrice() {
 
         double expectedTotalPrice = 6.0 + 24.0;

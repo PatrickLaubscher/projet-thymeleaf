@@ -17,6 +17,9 @@ public interface CartService {
     // remove product from cart
     public void removeProductFromCart(Product product, HttpSession session);
 
+    // remove cart entirely
+    public void removeEntireCart(HttpSession session);
+
     // calculate and display total price
     public double getTotalPrice(HttpSession session);
 

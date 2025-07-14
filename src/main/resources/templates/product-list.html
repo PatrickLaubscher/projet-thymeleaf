@@ -8,6 +8,10 @@
 <body>
     <h1>Liste des articles</h1>
 
+    <a th:href="@{/cart}">
+        Voir mon panier
+    </a>
+
     <ul>
         <li th:each="product : ${products}">
             <h2 th:text="${product.name}">

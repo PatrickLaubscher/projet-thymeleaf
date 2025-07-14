@@ -7,7 +7,7 @@ import com.hb.cda.thymeleafproject.entity.Product;
 
 public class Cart {
 
-    private Map<Product, Integer> items = new HashMap<>();
+    private final Map<Product, Integer> items = new HashMap<>();
 
     public void addProduct(Product product, int quantity) {
         items.put(product, items.getOrDefault(product, 0) + quantity);

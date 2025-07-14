@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruity shop</title>
+</head>
+<body>
+    <h1>Panier</h1>
+
+    <a th:href="@{/product}">
+        Retourner à la liste des articles
+    </a>
+
+
+    <table>
+        <tr>
+            <th>Nom de l'article</th>
+            <th>Quantité</th>
+            <th>Prix Unitaire</th>
+            <th>Ajouter des produits</th>
+            <th>Supprimer l'article</th>
+        </tr>
+        <tr th:each="entry : ${cart.items}">
+            <td th:text="${entry.key.name}"></td>
+            <td th:text="${entry.value}"></td>
+            <td> 
+                <span th:text="${entry.key.price}">
+                    Prix
+                </span> €   
+            </td>
+            <td>
+                <form th:action="@{/cart/add-to-cart}" th:object="${addToCartDTO}" method="post">
+
+                    <input type="hidden" name="productId" th:value="${entry.key.id}">
+
+                    <input type="number" name="quantity" placeholder="1" min="1"  th:attr="max=${entry.key.stock - entry.value}">
+                    
+                    <button type="submit">Ajouter au panier</button>
+                </form>
+            </td>
+            <td>
+                <form th:action="@{/cart/remove-from-cart}" th:object="${removeFromCartDTO}" method="post">
+
+                    <input type="hidden" name="productId" th:value="${entry.key.id}">
+                    
+                    <button type="submit">Supprimer l'article</button>
+                </form>
+            </td>
+
+        </tr>
+    </table>
+
+    <p>
+        Total net: <span th:text="${total}">total</span> €
+    </p>
+
+</body>
+</html>
