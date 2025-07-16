@@ -1,5 +1,7 @@
 package com.hb.cda.thymeleafproject.controller;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -100,5 +102,19 @@ public class CartController {
         return "redirect:/cart";
     }
     
+
+    @PostMapping("/validate-cart")
+    public String validateCart(HttpSession session) {
+
+        Cart cart =cartService.getCart(session);
+
+        Map<Product, Integer> products = cart.getItems();
+
+        
+
+        cartService.removeEntireCart(session);
+        
+        return "redirect:/cart";
+    }
 
 }

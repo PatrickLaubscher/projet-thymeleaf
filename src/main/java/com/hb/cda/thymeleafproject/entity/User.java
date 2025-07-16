@@ -1,5 +1,6 @@
 package com.hb.cda.thymeleafproject.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 
@@ -24,6 +26,10 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private String role;
+
+    @OneToMany(mappedBy="customer", orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
+    
     
     public User(String username, String password, String role) {
         this.username = username;
@@ -63,6 +69,12 @@ public class User implements UserDetails {
         this.role = role;
     }
     
+    public List<Order> getOrders() {
+        return orders;
+    }
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
 
     @Override
     public int hashCode() {
@@ -91,4 +103,5 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
     }
+
 }

@@ -1,9 +1,13 @@
 package com.hb.cda.thymeleafproject.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.UuidGenerator;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Product {
@@ -15,6 +19,10 @@ public class Product {
     private Double price;
     private String description;
     private Integer stock;
+
+    @OneToMany(mappedBy="product")
+    private List<OrderItem> orderItems = new ArrayList<>();
+     
 
     public Product(String name, Double price, String description, Integer stock) {
         this.name = name;
@@ -64,6 +72,14 @@ public class Product {
     public void setStock(Integer stock) {
         this.stock = stock;
     }
+    
+    public List<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
 
     @Override
     public int hashCode() {
@@ -94,5 +110,6 @@ public class Product {
     public String toString() {
         return "Product{id='" + id + "', name='" + name + "', price=" + price + "}";
     }
+
 
 }

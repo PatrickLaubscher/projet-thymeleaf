@@ -1,6 +1,5 @@
 package com.hb.cda.thymeleafproject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.boot.CommandLineRunner;
