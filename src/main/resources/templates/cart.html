@@ -14,7 +14,7 @@
         Vous n'êtes pas connecté(e). <br>Pensez à le faire ou à créer un compte.
         <br>
         <a sec:authorize="!isAuthenticated()" th:href="@{/register}">
-        Créer un compte
+            Créer un compte
         </a>
         <br>
         <a sec:authorize="!isAuthenticated()" th:href="@{/login}">
