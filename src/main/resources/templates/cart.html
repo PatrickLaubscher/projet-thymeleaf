@@ -31,7 +31,14 @@
         Retourner à la liste des articles
     </a>
 
-
+    <p>
+        <span th:if="${cart.items.size() == 0}">
+            Votre panier est vide.
+        </span>
+        <span th:if="${cart.items.size() > 0}">
+            Vous avez <span th:text="${cart.items.size()}">0</span> article(s) dans votre panier.
+        </span>
+    </p>
     <table>
         <tr>
             <th>Nom de l'article</th>
@@ -89,7 +96,10 @@
         <button type="submit">Vider le panier</button>
     </form>
 
-    Valider le panier
-        
+    <form th:if="${cart.items.size() > 0}" th:action="@{/cart/validate-cart}" method="post">
+        <button type="submit">Valider le panier</button>
+    </form>
+
+
 </body>
 </html>

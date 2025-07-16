@@ -1,5 +1,6 @@
 package com.hb.cda.thymeleafproject.controller;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -16,12 +17,19 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.hb.cda.thymeleafproject.dto.AddToCartDTO;
 import com.hb.cda.thymeleafproject.dto.RemoveFromCartDTO;
+import com.hb.cda.thymeleafproject.entity.Order;
+import com.hb.cda.thymeleafproject.entity.OrderItem;
 import com.hb.cda.thymeleafproject.entity.Product;
+import com.hb.cda.thymeleafproject.entity.User;
+import com.hb.cda.thymeleafproject.repository.OrderItemRepository;
+import com.hb.cda.thymeleafproject.repository.OrderRepository;
 import com.hb.cda.thymeleafproject.repository.ProductRepository;
+import com.hb.cda.thymeleafproject.repository.UserRepository;
 import com.hb.cda.thymeleafproject.service.Cart;
 import com.hb.cda.thymeleafproject.service.impl.CartServiceImpl;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 
@@ -32,11 +40,18 @@ public class CartController {
 
     private final CartServiceImpl cartService;
     private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
 
-    public CartController(CartServiceImpl cartService, ProductRepository productRepository) {
+    public CartController(CartServiceImpl cartService, ProductRepository productRepository,
+            OrderItemRepository orderItemRepository, OrderRepository orderRepository, UserRepository userRepository) {
         this.cartService = cartService;
         this.productRepository = productRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -103,14 +118,44 @@ public class CartController {
     }
     
 
+    @Transactional
     @PostMapping("/validate-cart")
-    public String validateCart(HttpSession session) {
+    public String validateCart(@AuthenticationPrincipal UserDetails userDetails, HttpSession session) {
+
+        if(userDetails == null) {
+            return "redirect:/login";
+        }
+
+        User customer = userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+
+        LocalDateTime orderDate = LocalDateTime.now();
+
+        Order order = new Order(orderDate, cartService.getTotalPrice(session), customer);
+        orderRepository.save(order);
 
         Cart cart =cartService.getCart(session);
 
         Map<Product, Integer> products = cart.getItems();
 
-        
+        for(Map.Entry<Product, Integer> item : products.entrySet()) {
+
+            Product product = item.getKey();
+
+            if (product.getStock() < item.getValue()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock insuffisant pour " + product.getName());
+            }
+
+            // create new order item
+            OrderItem newOrderItem = new OrderItem(item.getValue(), item.getKey(), order);
+            orderItemRepository.save(newOrderItem);
+
+            // diminish stock in product list
+            Integer newStock = product.getStock() - item.getValue();
+            product.setStock(newStock);
+            productRepository.save(product);
+        }
+
 
         cartService.removeEntireCart(session);
         

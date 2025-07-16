@@ -28,9 +28,15 @@ public class Order {
 
     @OneToMany(mappedBy="order", orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
-    
+
 
     public Order() {
+    }
+
+    public Order(LocalDateTime orderDate, Double totalPrice, User customer) {
+        this.orderDate = orderDate;
+        this.totalPrice = totalPrice;
+        this.customer = customer;
     }
 
     public Order(String id, LocalDateTime orderDate, Double totalPrice, User customer, List<OrderItem> orderItems) {

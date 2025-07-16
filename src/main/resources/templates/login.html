@@ -19,5 +19,7 @@
         
         <button>Login</button>
     </form>
+    <a sec:authorize="!isAuthenticated()" th:href="@{/register}">
+        Si vous n'avez pas de compte, inscrivez-vous
 </body>
 </html>

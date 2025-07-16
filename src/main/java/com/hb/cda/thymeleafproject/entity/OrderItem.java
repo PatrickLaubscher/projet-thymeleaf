@@ -28,6 +28,12 @@ public class OrderItem {
     public OrderItem() {
     }
 
+    public OrderItem(Integer qty, Product product, Order order) {
+        this.qty = qty;
+        this.product = product;
+        this.order = order;
+    }
+
 
     public OrderItem(String id, Integer qty, Product product, Order order) {
         this.id = id;
