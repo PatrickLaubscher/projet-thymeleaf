@@ -156,7 +156,7 @@ public class CartController {
             productRepository.save(product);
         }
 
-
+        // remove cart
         cartService.removeEntireCart(session);
         
         return "redirect:/cart";
