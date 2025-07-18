@@ -1,7 +1,5 @@
 package com.hb.cda.thymeleafproject.controller;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.hb.cda.thymeleafproject.dto.AddToCartDTO;
+import com.hb.cda.thymeleafproject.dto.ProductDTO;
+import com.hb.cda.thymeleafproject.dto.ProductMapper;
 import com.hb.cda.thymeleafproject.entity.Product;
 import com.hb.cda.thymeleafproject.repository.ProductRepository;
-import com.hb.cda.thymeleafproject.repository.UserRepository;
 import com.hb.cda.thymeleafproject.service.impl.CartServiceImpl;
 
 import jakarta.servlet.http.HttpSession;
@@ -31,14 +30,17 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/product")
 public class ProductController {
 
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final CartServiceImpl cartService;
+    private final ProductMapper productMapper;
 
-    public ProductController(UserRepository userRepository, ProductRepository productRepository, CartServiceImpl cartService) {
-        this.userRepository = userRepository;
+    
+
+    public ProductController(ProductRepository productRepository, CartServiceImpl cartService,
+            ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.cartService = cartService;
+        this.productMapper = productMapper;
     }
 
 
@@ -48,7 +50,9 @@ public class ProductController {
         Pageable firstPageWithTwoElements = PageRequest.of(pageNb-1, 5, Sort.by("name").descending());
 
         Page<Product> page = productRepository.findAll(firstPageWithTwoElements);
-        List<Product> productsList = page.getContent();
+
+        Page<ProductDTO> productsList = page.map(productMapper::convertToDTO);
+
 
         model.addAttribute("pageNb", pageNb);
         model.addAttribute("products", productsList);

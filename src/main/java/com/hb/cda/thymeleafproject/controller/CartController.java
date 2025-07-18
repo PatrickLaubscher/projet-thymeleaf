@@ -139,12 +139,17 @@ public class CartController {
         User customer = userRepository.findByUsername(userDetails.getUsername())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
+        Cart cart = cartService.getCart(session);
+
+        if(cart.getTotalQuantity() == 0) {
+            return "redirect:/cart";
+        }
+
         LocalDateTime orderDate = LocalDateTime.now();
+        
 
         Order order = new Order(orderDate, cartService.getTotalPrice(session), customer);
         orderRepository.save(order);
-
-        Cart cart = cartService.getCart(session);
 
         Map<Product, Integer> cartItems = new HashMap<>();
         for(HashMap.Entry<String, Integer> item : cart.getItems().entrySet() ) {

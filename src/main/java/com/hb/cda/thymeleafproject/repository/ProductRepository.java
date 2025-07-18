@@ -11,5 +11,7 @@ import com.hb.cda.thymeleafproject.entity.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String>{
+
     Optional<Product> findByName(String name);
+
 }
