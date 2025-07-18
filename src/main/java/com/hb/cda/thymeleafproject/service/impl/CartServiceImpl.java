@@ -3,9 +3,12 @@ package com.hb.cda.thymeleafproject.service.impl;
 
 import java.util.HashMap;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.hb.cda.thymeleafproject.entity.Product;
+import com.hb.cda.thymeleafproject.repository.ProductRepository;
 import com.hb.cda.thymeleafproject.service.Cart;
 import com.hb.cda.thymeleafproject.service.CartService;
 
@@ -14,6 +17,12 @@ import jakarta.servlet.http.HttpSession;
 
 @Service
 public class CartServiceImpl implements CartService {
+    
+    private final ProductRepository productRepository;
+
+    public CartServiceImpl(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
 
     @Override
@@ -65,11 +74,20 @@ public class CartServiceImpl implements CartService {
 
         Cart cart = this.getCart(session);
         double sum = 0.0;
-        for(HashMap.Entry<Product, Integer> item : cart.getItems().entrySet() ) {
-            sum += item.getValue() * item.getKey().getPrice();
+        for(HashMap.Entry<String, Integer> item : cart.getItems().entrySet() ) {
+            Product product = productRepository.findById(item.getKey())
+                .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+            sum += item.getValue() * product.getPrice();
         }
         return sum;
 
+    }
+
+
+    public ProductRepository getProductRepository() {
+        return productRepository;
     }
     
 }

@@ -1,6 +1,7 @@
 package com.hb.cda.thymeleafproject.controller;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -59,13 +60,22 @@ public class CartController {
     public String displayCartList(Model model, HttpSession session, @AuthenticationPrincipal UserDetails userDetails) {
 
         Cart cart = cartService.getCart(session);
+
+        Map<Product, Integer> cartItems = new HashMap<>();
+        for(HashMap.Entry<String, Integer> item : cart.getItems().entrySet() ) {
+            Product product = productRepository.findById(item.getKey())
+                .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+           cartItems.put(product, item.getValue());
+        }
+
         Double totalPrice = cartService.getTotalPrice(session);
 
         if(userDetails != null && userDetails.isEnabled()) {
             model.addAttribute("username", userDetails.getUsername());
         }
 
-        model.addAttribute("cart", cart); 
+        model.addAttribute("cart", cartItems);
         model.addAttribute("total", totalPrice); 
         model.addAttribute("addToCartDTO", new AddToCartDTO());
         model.addAttribute("removeFromCartDTO", new RemoveFromCartDTO());
@@ -134,11 +144,18 @@ public class CartController {
         Order order = new Order(orderDate, cartService.getTotalPrice(session), customer);
         orderRepository.save(order);
 
-        Cart cart =cartService.getCart(session);
+        Cart cart = cartService.getCart(session);
 
-        Map<Product, Integer> products = cart.getItems();
+        Map<Product, Integer> cartItems = new HashMap<>();
+        for(HashMap.Entry<String, Integer> item : cart.getItems().entrySet() ) {
+            Product product = productRepository.findById(item.getKey())
+                .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
 
-        for(Map.Entry<Product, Integer> item : products.entrySet()) {
+           cartItems.put(product, item.getValue());
+        }
+
+        for(Map.Entry<Product, Integer> item : cartItems.entrySet()) {
 
             Product product = item.getKey();
 
