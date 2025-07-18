@@ -7,7 +7,21 @@ import com.hb.cda.thymeleafproject.entity.Product;
 
 public class Cart {
 
-    private final Map<String, Integer> items = new HashMap<>();
+    private Map<String, Integer> items = new HashMap<>();
+
+    public Cart() {
+        this.items = new HashMap<>();
+    }
+
+    public Map<String, Integer> getItems() {
+        return items;
+    }
+
+    public void setItems(Map<String, Integer> items) {
+        this.items = items;
+    }
+
+
 
     public void addProduct(Product product, int quantity) {
         items.put(product.getId(), items.getOrDefault(product.getId(), 0) + quantity);
@@ -17,9 +31,6 @@ public class Cart {
         items.remove(product.getId());
     }
 
-    public Map<String, Integer> getItems() {
-        return items;
-    }
 
     public void decreaseProductQuantity(Product product, int quantity) {
 

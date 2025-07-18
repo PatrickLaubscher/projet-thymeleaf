@@ -36,7 +36,7 @@
             Votre panier est vide.
         </span>
         <span th:if="${!#maps.isEmpty(cart)}">
-            Vous avez <span th:text="${cart.size()}">0</span> article(s) dans votre panier.
+            Vous avez <span th:text="${qty}">0</span> article(s) dans votre panier.
         </span>
     </p>
     <table>

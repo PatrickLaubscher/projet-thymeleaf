@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.hb.cda.thymeleafproject.dto.AddToCartDTO;
+import com.hb.cda.thymeleafproject.dto.ProductDTO;
+import com.hb.cda.thymeleafproject.dto.ProductMapper;
 import com.hb.cda.thymeleafproject.dto.RemoveFromCartDTO;
 import com.hb.cda.thymeleafproject.entity.Order;
 import com.hb.cda.thymeleafproject.entity.OrderItem;
@@ -29,6 +31,8 @@ import com.hb.cda.thymeleafproject.repository.UserRepository;
 import com.hb.cda.thymeleafproject.service.Cart;
 import com.hb.cda.thymeleafproject.service.impl.CartServiceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -44,39 +48,47 @@ public class CartController {
     private final OrderItemRepository orderItemRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final ProductMapper productMapper;
+
 
 
     public CartController(CartServiceImpl cartService, ProductRepository productRepository,
-            OrderItemRepository orderItemRepository, OrderRepository orderRepository, UserRepository userRepository) {
+            OrderItemRepository orderItemRepository, OrderRepository orderRepository, UserRepository userRepository,
+            ProductMapper productMapper) {
         this.cartService = cartService;
         this.productRepository = productRepository;
         this.orderItemRepository = orderItemRepository;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
+        this.productMapper = productMapper;
     }
 
 
     @GetMapping("")
-    public String displayCartList(Model model, HttpSession session, @AuthenticationPrincipal UserDetails userDetails) {
+    public String displayCartList(Model model, HttpServletRequest request, @AuthenticationPrincipal UserDetails userDetails) {
 
-        Cart cart = cartService.getCart(session);
+        Cart cart = cartService.getCart(request);
 
-        Map<Product, Integer> cartItems = new HashMap<>();
+        Map<ProductDTO, Integer> cartItems = new HashMap<>();
         for(HashMap.Entry<String, Integer> item : cart.getItems().entrySet() ) {
             Product product = productRepository.findById(item.getKey())
                 .orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-           cartItems.put(product, item.getValue());
+
+            ProductDTO dto = productMapper.convertToDTO(product);
+           cartItems.put(dto, item.getValue());
         }
 
-        Double totalPrice = cartService.getTotalPrice(session);
+        Double totalPrice = cartService.getTotalPrice(request);
+        int qty = cart.getTotalQuantity();
 
         if(userDetails != null && userDetails.isEnabled()) {
             model.addAttribute("username", userDetails.getUsername());
         }
 
         model.addAttribute("cart", cartItems);
-        model.addAttribute("total", totalPrice); 
+        model.addAttribute("total", totalPrice);
+        model.addAttribute("qty", qty);
         model.addAttribute("addToCartDTO", new AddToCartDTO());
         model.addAttribute("removeFromCartDTO", new RemoveFromCartDTO());
 
@@ -85,22 +97,22 @@ public class CartController {
 
     
     @PostMapping("/add-to-cart")
-    public String addProductInCart(@ModelAttribute @Valid AddToCartDTO dto, BindingResult bindingResult, HttpSession session) {
+    public String addProductInCart(@ModelAttribute @Valid AddToCartDTO dto, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response) {
         Product product = productRepository.findById(dto.getProductId()).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         if (product != null) {
-            cartService.addProductInCart(product, dto.getQuantity(), session);
+            cartService.addProductInCart(product, dto.getQuantity(), request, response);
         }
         
         return "redirect:/cart";
     }
 
     @PostMapping("/decrease-qty")
-    public String decreaseQtyInCart(@ModelAttribute @Valid AddToCartDTO dto, BindingResult bindingResult, HttpSession session) {
+    public String decreaseQtyInCart(@ModelAttribute @Valid AddToCartDTO dto, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response) {
         Product product = productRepository.findById(dto.getProductId()).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         if (product != null) {
-            cartService.diminishQuantityInCart(product, dto.getQuantity(), session);
+            cartService.diminishQuantityInCart(product, dto.getQuantity(), request, response);
         }
         
         return "redirect:/cart";
@@ -108,11 +120,11 @@ public class CartController {
 
 
     @PostMapping("/remove-from-cart")
-    public String removeProductFromCart(@ModelAttribute @Valid RemoveFromCartDTO dto, BindingResult bindingResult, HttpSession session) {
+    public String removeProductFromCart(@ModelAttribute @Valid RemoveFromCartDTO dto, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response) {
         Product product = productRepository.findById(dto.getProductId()).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         if (product != null) {
-            cartService.removeProductFromCart(product, session);
+            cartService.removeProductFromCart(product, request, response);
         }
         
         return "redirect:/cart";
@@ -120,9 +132,9 @@ public class CartController {
 
 
     @PostMapping("/empty-cart")
-    public String emptyCart(HttpSession session) {
+    public String emptyCart(HttpServletResponse response) {
 
-        cartService.removeEntireCart(session);
+        cartService.removeEntireCart(response);
         
         return "redirect:/cart";
     }
@@ -130,7 +142,7 @@ public class CartController {
 
     @Transactional
     @PostMapping("/validate-cart")
-    public String validateCart(@AuthenticationPrincipal UserDetails userDetails, HttpSession session) {
+    public String validateCart(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request, HttpServletResponse response) {
 
         if(userDetails == null) {
             return "redirect:/login";
@@ -139,7 +151,7 @@ public class CartController {
         User customer = userRepository.findByUsername(userDetails.getUsername())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
-        Cart cart = cartService.getCart(session);
+        Cart cart = cartService.getCart(request);
 
         if(cart.getTotalQuantity() == 0) {
             return "redirect:/cart";
@@ -148,7 +160,7 @@ public class CartController {
         LocalDateTime orderDate = LocalDateTime.now();
         
 
-        Order order = new Order(orderDate, cartService.getTotalPrice(session), customer);
+        Order order = new Order(orderDate, cartService.getTotalPrice(request), customer);
         orderRepository.save(order);
 
         Map<Product, Integer> cartItems = new HashMap<>();
@@ -179,7 +191,7 @@ public class CartController {
         }
 
         // remove cart
-        cartService.removeEntireCart(session);
+        cartService.removeEntireCart(response);
         
         return "redirect:/cart";
     }

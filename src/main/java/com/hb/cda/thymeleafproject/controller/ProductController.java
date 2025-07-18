@@ -20,6 +20,8 @@ import com.hb.cda.thymeleafproject.entity.Product;
 import com.hb.cda.thymeleafproject.repository.ProductRepository;
 import com.hb.cda.thymeleafproject.service.impl.CartServiceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 
@@ -63,11 +65,11 @@ public class ProductController {
     
 
     @PostMapping("/add-to-cart")
-    public String addProductInCart(@RequestParam String productId, @RequestParam int quantity, HttpSession session) {
+    public String addProductInCart(@RequestParam String productId, @RequestParam int quantity, HttpServletRequest request, HttpServletResponse response) {
         Product product = productRepository.findById(productId).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         if (product != null) {
-            cartService.addProductInCart(product, quantity, session);
+            cartService.addProductInCart(product, quantity, request, response);
         }
         
         return "redirect:/product";
